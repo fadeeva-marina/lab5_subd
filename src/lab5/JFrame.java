@@ -6,14 +6,24 @@
 package lab5;
 
 import java.sql.Date;
+import service.AbService;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
+import service.AreaService;
+import service.DoctorService;
+import service.HospService;
+import service.PatientService;
+import service.PostService;
+import service.ReceptionService;
+import service.ServiceSerice;
 
 /**
  *
@@ -29,50 +39,17 @@ public class JFrame extends javax.swing.JFrame {
     private ArrayList<Patient> patients = new ArrayList<>();
     private ArrayList<Reception> receptions = new ArrayList<>();
     private ArrayList<ServicePrice> servicePrices = new ArrayList<>();
+    private AreaService areaS;
+    private DoctorService docS;
+    private HospService hoS;
+    private PatientService patS;
+    private PostService postS;
+    private ReceptionService recS;
+    private ServiceSerice serS;
     String tab = "reception";
     String pk_tab = "nrec";
     DefaultComboBoxModel model;
     private DbManager dbManager;
-
-    public ArrayList<Doctor> getDoctors() {
-        return doctors;
-    }
-
-    public void setDoctors(ArrayList<Doctor> doctors) {
-        this.doctors = doctors;
-    }
-
-    public ArrayList<Hosp> getHosps() {
-        return hosps;
-    }
-
-    public void setHosps(ArrayList<Hosp> hosps) {
-        this.hosps = hosps;
-    }
-
-    public ArrayList<Patient> getPatients() {
-        return patients;
-    }
-
-    public void setPatients(ArrayList<Patient> patients) {
-        this.patients = patients;
-    }
-
-    public ArrayList<Reception> getReceptions() {
-        return receptions;
-    }
-
-    public void setReceptions(ArrayList<Reception> receptions) {
-        this.receptions = receptions;
-    }
-
-    public ArrayList<ServicePrice> getServicePrices() {
-        return servicePrices;
-    }
-
-    public void setServicePrices(ArrayList<ServicePrice> servicePrices) {
-        this.servicePrices = servicePrices;
-    }
 
     /**
      * Creates new form JFrame
@@ -80,20 +57,31 @@ public class JFrame extends javax.swing.JFrame {
      * @param dbManager
      */
     public JFrame(DbManager dbManager) {
-        initComponents();
-        jTextField1.setText("OK");
-        this.dbManager = dbManager;
-        makeInvis();
-        createListPost();
-        createListDoc();
-        createListArea();
-        createListPatient();
-        createListRec();
-        createListServ();
-        createListHosp();
-        setjTableRec(receptions);
-        makeRec();
-
+        try {
+            initComponents();
+            jTextField1.setText("OK");
+            this.dbManager = dbManager;
+            areaS = new AreaService(dbManager);
+            docS = new DoctorService(dbManager);
+            hoS = new HospService(dbManager);
+            patS = new PatientService(dbManager);
+            postS = new PostService(dbManager);
+            recS = new ReceptionService(dbManager);
+            serS = new ServiceSerice(dbManager);
+            change_btn.setEnabled(true);
+            makeInvis();
+            createListPost();
+            createListDoc();
+            createListArea();
+            createListPatient();
+            createListRec();
+            createListServ();
+            createListHosp();
+            setjTableRec();
+            makeRec();
+        } catch (SQLException ex) {
+            Logger.getLogger(JFrame.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     /**
@@ -499,12 +487,16 @@ public class JFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_exitActionPerformed
 
     private void post_menuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_post_menuActionPerformed
-        makeInvis();
-        lbl_name.setVisible(true);
-        txt_name.setVisible(true);
-        tab = "post";
-        pk_tab = "npost";
-        setjTablePost(posts);
+        try {
+            makeInvis();
+            lbl_name.setVisible(true);
+            txt_name.setVisible(true);
+            tab = "post";
+            pk_tab = "npost";
+            setjTablePost();
+        } catch (SQLException ex) {
+            Logger.getLogger(JFrame.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }//GEN-LAST:event_post_menuActionPerformed
 
     private void doc_menuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_doc_menuActionPerformed
@@ -521,66 +513,80 @@ public class JFrame extends javax.swing.JFrame {
         id_hosp.setModel(model);
         model = new DefaultComboBoxModel(posts.toArray());
         id_post_doc.setModel(model);
-        setjTableDoctor(doctors);
+        try {
+            setjTableDoctor();
+        } catch (SQLException ex) {
+            Logger.getLogger(JFrame.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }//GEN-LAST:event_doc_menuActionPerformed
 
     private void area_menuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_area_menuActionPerformed
-        makeInvis();
-        txt_name.setVisible(true);
-        lbl_name.setVisible(true);
-        pk_tab = "narea";
-        tab = "area";
-        setjTableArea(areas);
+        try {
+            makeInvis();
+            txt_name.setVisible(true);
+            lbl_name.setVisible(true);
+            pk_tab = "narea";
+            tab = "area";
+            setjTableArea();
+        } catch (SQLException ex) {
+            Logger.getLogger(JFrame.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }//GEN-LAST:event_area_menuActionPerformed
 
     private void patient_menuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_patient_menuActionPerformed
-        makeInvis();
-        lbl_fio.setVisible(true);
-        lbl_dob.setVisible(true);
-        lbl_area.setVisible(true);
-        lbl_tip1.setVisible(true);
-        txt_dob.setVisible(true);
-        txt_name.setVisible(true);
-        id_ar_serv.setVisible(true);
-        pk_tab = "ncard";
-        tab = "patient";
-        patients.removeAll(patients);
-        createListPatient();
-        model = new DefaultComboBoxModel(areas.toArray());
-        id_ar_serv.setModel(model);
-        setjTablePatient(patients);
+        try {
+            makeInvis();
+            lbl_fio.setVisible(true);
+            lbl_dob.setVisible(true);
+            lbl_area.setVisible(true);
+            lbl_tip1.setVisible(true);
+            txt_dob.setVisible(true);
+            txt_name.setVisible(true);
+            id_ar_serv.setVisible(true);
+            pk_tab = "ncard";
+            tab = "patient";
+            model = new DefaultComboBoxModel(areas.toArray());
+            id_ar_serv.setModel(model);
+            setjTablePatient();
+        } catch (SQLException ex) {
+            Logger.getLogger(JFrame.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }//GEN-LAST:event_patient_menuActionPerformed
 
     private void hosp_memuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_hosp_memuActionPerformed
-        makeInvis();
-        lbl_name.setVisible(true);
-        txt_name.setVisible(true);
-        lbl_hosp.setVisible(true);
-        id_ar_serv.setVisible(true);
-        model = new DefaultComboBoxModel(areas.toArray());
-        id_ar_serv.setModel(model);
-        pk_tab = "nhosp";
-        tab = "hosp";
-        setjTableHosp(hosps);
+        try {
+            makeInvis();
+            lbl_name.setVisible(true);
+            txt_name.setVisible(true);
+            lbl_hosp.setVisible(true);
+            id_ar_serv.setVisible(true);
+            model = new DefaultComboBoxModel(areas.toArray());
+            id_ar_serv.setModel(model);
+            pk_tab = "nhosp";
+            tab = "hosp";
+            setjTableHosp();
+        } catch (SQLException ex) {
+            Logger.getLogger(JFrame.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }//GEN-LAST:event_hosp_memuActionPerformed
 
     public DbManager getDbManager() {
         return dbManager;
     }
 
-    public void setDbManager(DbManager dbManager) {
-        this.dbManager = dbManager;
-    }
-
     private void serv_menuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_serv_menuActionPerformed
-        makeInvis();
-        lbl_price.setVisible(true);
-        lbl_name.setVisible(true);
-        txt_name.setVisible(true);
-        txt_int3.setVisible(true);
-        pk_tab = "nservice";
-        tab = "serviceprice";
-        setjTableServ(servicePrices);
+        try {
+            makeInvis();
+            lbl_price.setVisible(true);
+            lbl_name.setVisible(true);
+            txt_name.setVisible(true);
+            txt_int3.setVisible(true);
+            pk_tab = "nservice";
+            tab = "serviceprice";
+            setjTableServ();
+        } catch (SQLException ex) {
+            Logger.getLogger(JFrame.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }//GEN-LAST:event_serv_menuActionPerformed
 
     private void rec_menuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rec_menuActionPerformed
@@ -588,53 +594,46 @@ public class JFrame extends javax.swing.JFrame {
         makeRec();
         tab = "reception";
         pk_tab = "nrec";
-        setjTableRec(receptions);
+        try {
+            setjTableRec();
+        } catch (SQLException ex) {
+            Logger.getLogger(JFrame.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }//GEN-LAST:event_rec_menuActionPerformed
 
     private void delete_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_delete_btnActionPerformed
         try {
             Object n = jTable1.getValueAt(jTable1.getSelectedRow(), 0);
             int k = Integer.parseInt(n.toString());
+            int s = jTable1.getSelectedRow();
+            DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
             String str = "DELETE FROM " + tab + " WHERE " + pk_tab + " = " + k + ";";
             dbManager.executeUpdate(str);
             switch (tab) {
                 case "patient":
                     patients.remove(k);
-                    createListPatient();
-                    setjTablePatient(patients);
                     break;
                 case "doctor":
                     doctors.remove(k);
-                    createListDoc();
-                    setjTableDoctor(doctors);
                     break;
                 case "area":
                     areas.remove(k);
-                    createListArea();
-                    setjTableArea(areas);
                     break;
                 case "hosp":
                     hosps.remove(k);
-                    createListHosp();
-                    setjTableHosp(hosps);
                     break;
                 case "serviceprice":
                     servicePrices.remove(k);
-                    createListServ();
-                    setjTableServ(servicePrices);
                     break;
                 case "reception":
                     receptions.remove(k);
-                    createListRec();
-                    setjTableRec(receptions);
                     break;
                 case "post":
                     posts.remove(k);
-                    createListPost();
-                    setjTablePost(posts);
                     break;
             }
-
+            model.removeRow(s);
+            jTable1.setModel(model);
         } catch (SQLException ex) {
             Logger.getLogger(JFrame.class.getName()).log(Level.SEVERE, null, ex);
         } catch (ArrayIndexOutOfBoundsException exx) {
@@ -644,82 +643,75 @@ public class JFrame extends javax.swing.JFrame {
 
     private void add_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_add_btnActionPerformed
         try {
+            SimpleDateFormat format = new SimpleDateFormat();
+            format.applyPattern("yyyy-MM-dd");
             switch (tab) {
                 case "patient":
                     try {
-                        String str = "INSERT INTO " + tab + " values('" + patients.size() + "','";
                         String[] name = txt_name.getText().split(" ");
-                        str += name[0] + "','" + name[1] + "','" + name[2] + "','" + txt_dob.getText() + "','" + id_ar_serv.getSelectedIndex() + "');";
-                        dbManager.executeUpdate(str);
-                        createListPatient();
-                        setjTablePatient(patients);
-                    } catch (SQLException ex) {
+                        java.util.Date patDate = format.parse(txt_dob.getText());
+                        Patient patient = new Patient(patients.size(), name[0], name[1], name[2], new java.sql.Date(patDate.getTime()), id_ar_serv.getSelectedIndex());
+                        patS.add(patient);
+                        setjTablePatient();
+                    } catch (SQLException | ParseException ex) {
                         Logger.getLogger(JFrame.class.getName()).log(Level.SEVERE, null, ex);
                     }
                     break;
                 case "doctor":
                     try {
-                        String str = "INSERT INTO " + tab + " values('" + doctors.size() + "','";
                         String[] name = txt_name.getText().split(" ");
-                        str += name[0] + "','" + name[1] + "','" + name[2] + "','" + id_post_doc.getSelectedIndex() + "','" + id_hosp.getSelectedIndex() + "');";
-                        dbManager.executeUpdate(str);
+                        Doctor doctor = new Doctor(doctors.size(), name[0], name[1], name[2], Long.parseLong(id_post_doc.getSelectedIndex() + ""), Long.parseLong("" + id_hosp.getSelectedIndex()));
+                        docS.add(doctor);
+                        setjTableDoctor();
                     } catch (SQLException ex) {
                         Logger.getLogger(JFrame.class.getName()).log(Level.SEVERE, null, ex);
                     }
-                    createListDoc();
-                    setjTableDoctor(doctors);
+
                     break;
                 case "area": {
-                    String str = "INSERT INTO " + tab + " values('" + areas.size() + "','" + txt_name.getText() + "');";
                     try {
-                        dbManager.executeUpdate(str);
+                        Area area = new Area(areas.size(), txt_name.getText());
+                        areaS.add(area);
+                        setjTableArea();
                     } catch (SQLException ex) {
                         Logger.getLogger(JFrame.class.getName()).log(Level.SEVERE, null, ex);
                     }
-                    createListArea();
-                    setjTableArea(areas);
                     break;
                 }
                 case "hosp":
                     try {
-                        String str = "INSERT INTO " + tab + " values('" + hosps.size() + "','"
-                                + txt_name.getText() + "','" + id_ar_serv.getSelectedIndex() + "');";
-                        dbManager.executeUpdate(str);
+                        Hosp hosp = new Hosp(hosps.size(), txt_name.getText(), id_ar_serv.getSelectedIndex());
+                        hoS.add(hosp);
+                        setjTableHosp();
                     } catch (SQLException ex) {
                         Logger.getLogger(JFrame.class.getName()).log(Level.SEVERE, null, ex);
                     }
-                    createListHosp();
-                    setjTableHosp(hosps);
+
                     break;
                 case "serviceprice":
                     try {
-                        String str = "INSERT INTO " + tab + " values('" + servicePrices.size()
-                                + "','" + txt_name.getText() + "','" + Double.parseDouble(txt_int3.getText()) + "');";
-                        dbManager.executeUpdate(str);
-                        createListServ();
-                        setjTableServ(servicePrices);
+                        ServicePrice serP = new ServicePrice(servicePrices.size(), txt_name.getText(), Double.parseDouble(txt_int3.getText()));
+                        serS.add(serP);
+                        setjTableServ();
                     } catch (SQLException ex) {
                         Logger.getLogger(JFrame.class.getName()).log(Level.SEVERE, null, ex);
                     }
                     break;
                 case "reception":
                     try {
-                        String str = "INSERT INTO " + tab + " values('" + receptions.size() + "','";
-                        str += txt_name + "','" + id_post_doc.getSelectedIndex() + "','" + id_ar_serv.getSelectedIndex() + "','"
-                                + id_card.getSelectedIndex() + "','" + id_hosp.getSelectedIndex() + "');";
-                        dbManager.executeUpdate(str);
-                        createListRec();
-                        setjTableRec(receptions);
-                    } catch (SQLException ex) {
+                        java.util.Date recDate = format.parse(txt_name.getText());
+                        Reception rec = new Reception(receptions.size(), new java.sql.Date(recDate.getTime()), id_post_doc.getSelectedIndex(), id_ar_serv.getSelectedIndex(), id_card.getSelectedIndex(), id_hosp.getSelectedIndex());
+                        recS.add(rec);
+                        setjTableRec();
+                    } catch (SQLException | ParseException ex) {
                         Logger.getLogger(JFrame.class.getName()).log(Level.SEVERE, null, ex);
                     }
                     break;
                 case "post": {
-                    String str = "INSERT INTO " + tab + " values('" + posts.size() + "','" + txt_name.getText() + "');";
                     try {
-                        dbManager.executeUpdate(str);
-                        createListPost();
-                        setjTablePost(posts);
+                        Post post = new Post(posts.size(), txt_name.getText());
+                        postS.add(post);
+                        setjTablePost();
                     } catch (SQLException ex) {
                         Logger.getLogger(JFrame.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -735,33 +727,32 @@ public class JFrame extends javax.swing.JFrame {
 
     private void change_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_change_btnActionPerformed
         try {
+            Object n = jTable1.getValueAt(jTable1.getSelectedRow(), 0);
+            int k = Integer.parseInt(n.toString());
+            SimpleDateFormat format = new SimpleDateFormat();
+            format.applyPattern("yyyy-MM-dd");
+            String str = "UPDATE " + tab + " SET ";
             switch (tab) {
                 case "patient":
                     try {
-                        String str = "UPDATE " + tab + " SET ";
                         String[] name = txt_name.getText().split(" ");
-                        Object n = jTable1.getValueAt(jTable1.getSelectedRow(), 0);
-                        int k = Integer.parseInt(n.toString());
-                        Date dob = patients.get(k).getDob();
-                        str += "surname = '" + name[0] + "', name = '" + name[1] + "', middlename='" + name[2] + "',dob = '" + dob + "',narea = " + id_ar_serv.getSelectedIndex()
+                        java.util.Date patDate = format.parse(txt_dob.getText());
+                        str += "surname = '" + name[0] + "', name = '" + name[1] + "', middlename='" + name[2] + "',dob = '" + txt_dob.getText() + "',narea = " + id_ar_serv.getSelectedIndex()
                                 + " WHERE " + pk_tab + "=" + k;
                         dbManager.executeUpdate(str);
-                        patients.get(jTable1.getSelectedRow() + 1).setDob(dob);
+                        patients.get(jTable1.getSelectedRow() + 1).setDob(new java.sql.Date(patDate.getTime()));
                         patients.get(jTable1.getSelectedRow() + 1).setFirstName(name[1]);
                         patients.get(jTable1.getSelectedRow() + 1).setLastName(name[0]);
                         patients.get(jTable1.getSelectedRow() + 1).setMiddleName(name[2]);
                         patients.get(jTable1.getSelectedRow() + 1).setId_area(id_ar_serv.getSelectedIndex());
-                        setjTablePatient(patients);
-                    } catch (SQLException ex) {
+                        setjTablePatient();
+                    } catch (SQLException | ParseException ex) {
                         Logger.getLogger(JFrame.class.getName()).log(Level.SEVERE, null, ex);
                     }
                     break;
                 case "doctor":
                     try {
-                        String str = "UPDATE " + tab + " SET ";
                         String[] name = txt_name.getText().split(" ");
-                        Object n = jTable1.getValueAt(jTable1.getSelectedRow(), 0);
-                        int k = Integer.parseInt(n.toString());
                         str += "surname = '" + name[0] + "', name = '" + name[1] + "', middlename='" + name[2] + "', npost=" + id_post_doc.getSelectedIndex()
                                 + ",nhosp = " + id_hosp.getSelectedIndex() + " WHERE " + pk_tab + "=" + k;
                         dbManager.executeUpdate(str);
@@ -770,20 +761,17 @@ public class JFrame extends javax.swing.JFrame {
                         doctors.get(jTable1.getSelectedRow() + 1).setMiddleName(name[2]);
                         doctors.get(jTable1.getSelectedRow() + 1).setId_hosp(id_hosp.getSelectedIndex());
                         doctors.get(jTable1.getSelectedRow() + 1).setId_post(id_post_doc.getSelectedIndex());
-                        setjTableDoctor(doctors);
+                        setjTableDoctor();
                     } catch (SQLException ex) {
                         Logger.getLogger(JFrame.class.getName()).log(Level.SEVERE, null, ex);
                     }
                     break;
                 case "area": {
-                    String str = "UPDATE " + tab + " SET ";
-                    Object n = jTable1.getValueAt(jTable1.getSelectedRow(), 0);
-                    int k = Integer.parseInt(n.toString());
                     str += "district='" + txt_name.getText() + "' WHERE " + pk_tab + "=" + k;
                     try {
                         dbManager.executeUpdate(str);
                         areas.get(jTable1.getSelectedRow() + 1).setDistrict(txt_name.getText());
-                        setjTableArea(areas);
+                        setjTableArea();
                     } catch (SQLException ex) {
                         Logger.getLogger(JFrame.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -791,60 +779,48 @@ public class JFrame extends javax.swing.JFrame {
                 }
                 case "hosp":
                     try {
-                        String str = "UPDATE " + tab + " SET ";
-                        Object n = jTable1.getValueAt(jTable1.getSelectedRow(), 0);
-                        int k = Integer.parseInt(n.toString());
                         str += "name='" + txt_name.getText() + "', narea=" + id_ar_serv.getSelectedIndex() + " WHERE " + pk_tab + "=" + k;
                         dbManager.executeUpdate(str);
                         hosps.get(jTable1.getSelectedRow() + 1).setId_area(id_ar_serv.getSelectedIndex());
                         hosps.get(jTable1.getSelectedRow() + 1).setName(txt_name.getText());
-                        setjTableHosp(hosps);
+                        setjTableHosp();
                     } catch (SQLException ex) {
                         Logger.getLogger(JFrame.class.getName()).log(Level.SEVERE, null, ex);
                     }
                     break;
                 case "serviceprice":
                     try {
-                        String str = "UPDATE " + tab + " SET ";
-                        Object n = jTable1.getValueAt(jTable1.getSelectedRow(), 0);
-                        int k = Integer.parseInt(n.toString());
                         str += "service='" + txt_name.getText() + "', serviceprice=" + Double.parseDouble(txt_int3.getText()) + " WHERE " + pk_tab + "=" + k;
                         dbManager.executeUpdate(str);
                         servicePrices.get(jTable1.getSelectedRow() + 1).setService(txt_name.getText());
                         servicePrices.get(jTable1.getSelectedRow() + 1).setPrice(Double.parseDouble(txt_int3.getText()));
-                        setjTableServ(servicePrices);
+                        setjTableServ();
                     } catch (SQLException ex) {
                         Logger.getLogger(JFrame.class.getName()).log(Level.SEVERE, null, ex);
                     }
                     break;
                 case "reception":
                     try {
-                        String str = "UPDATE " + tab + " SET ";
-                        Object n = jTable1.getValueAt(jTable1.getSelectedRow(), 0);
-                        int k = Integer.parseInt(n.toString());
-                        Date date = receptions.get(k).getDate();
+                        java.util.Date recDate = format.parse(txt_name.getText());
                         str += "data = '" + txt_name.getText() + "',ndoctor =" + id_post_doc.getSelectedIndex() + ",nservice=" + id_ar_serv.getSelectedIndex() + ",ncard ="
                                 + id_card.getSelectedIndex() + ",nhosp = " + id_hosp.getSelectedIndex() + " WHERE " + pk_tab + "=" + k;
                         dbManager.executeUpdate(str);
-                        receptions.get(jTable1.getSelectedRow() + 1).setDate(date);
+                        receptions.get(jTable1.getSelectedRow() + 1).setDate(new java.sql.Date(recDate.getTime()));
                         receptions.get(jTable1.getSelectedRow() + 1).setId_card(id_card.getSelectedIndex());
                         receptions.get(jTable1.getSelectedRow() + 1).setId_doc(id_post_doc.getSelectedIndex());
                         receptions.get(jTable1.getSelectedRow() + 1).setId_hosp(id_hosp.getSelectedIndex());
                         receptions.get(jTable1.getSelectedRow() + 1).setId_serv(id_ar_serv.getSelectedIndex());
-                        setjTableRec(receptions);
-                    } catch (SQLException ex) {
+                        setjTableRec();
+                    } catch (SQLException | ParseException ex) {
                         Logger.getLogger(JFrame.class.getName()).log(Level.SEVERE, null, ex);
                     }
                     break;
                 case "post": {
-                    String str = "UPDATE " + tab + " SET ";
-                    Object n = jTable1.getValueAt(jTable1.getSelectedRow(), 0);
-                    int k = Integer.parseInt(n.toString());
                     str += "post='" + txt_name.getText() + "' WHERE " + pk_tab + "=" + k;
                     try {
                         dbManager.executeUpdate(str);
                         posts.get(jTable1.getSelectedRow() + 1).setPost(txt_name.getText());
-                        setjTablePost(posts);
+                        setjTablePost();
                     } catch (SQLException ex) {
                         Logger.getLogger(JFrame.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -906,18 +882,21 @@ public class JFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_jTable1MouseClicked
 
     private void btn_noteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_noteActionPerformed
-        CreateRec crR = new CreateRec();
-        crR.setDoctors(doctors);
-        crR.setPatients(patients);
-        crR.setHosps(hosps);
-        crR.setReceptions(receptions);
-        crR.setServicePrices(servicePrices);
-        crR.setDbManager(dbManager);
-        crR.filling();
-        crR.setVisible(true);
-        crR.getReceptions();
-        createListRec();
-        setjTableRec(receptions);
+        try {
+            CreateRec crR = new CreateRec();
+            crR.setDoctors(doctors);
+            crR.setPatients(patients);
+            crR.setHosps(hosps);
+            crR.setReceptions(receptions);
+            crR.setServicePrices(servicePrices);
+            crR.setDbManager(dbManager);
+            crR.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+            crR.filling();
+            crR.setVisible(true);
+            setjTableRec();
+        } catch (SQLException ex) {
+            Logger.getLogger(JFrame.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }//GEN-LAST:event_btn_noteActionPerformed
 
     private void jCheckBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBox1ActionPerformed
@@ -1001,7 +980,8 @@ public class JFrame extends javax.swing.JFrame {
     private javax.swing.JTextField txt_name;
     // End of variables declaration//GEN-END:variables
 
-    public void setjTablePost(ArrayList<Post> posts) {
+    public void setjTablePost() throws SQLException {
+        createListPost();
         Object[] namesEmployee = {"ID", "Пост"};
         DefaultTableModel modelEmployee = new DefaultTableModel(namesEmployee, 0);
         for (int i = 1; i < posts.size(); ++i) {
@@ -1012,7 +992,8 @@ public class JFrame extends javax.swing.JFrame {
         jTable1.setModel(modelEmployee);
     }
 
-    public void setjTableDoctor(ArrayList<Doctor> doctors) {
+    public void setjTableDoctor() throws SQLException {
+        createListDoc();
         Object[] namesEmployee = {"ID", "Фамилия", "Имя", "Отчество", "Должность", "Больница"};
         DefaultTableModel modelEmployee = new DefaultTableModel(namesEmployee, 0);
         for (int i = 1; i < doctors.size(); ++i) {
@@ -1028,7 +1009,8 @@ public class JFrame extends javax.swing.JFrame {
         jTable1.setModel(modelEmployee);
     }
 
-    public void setjTableArea(ArrayList<Area> areas) {
+    public void setjTableArea() throws SQLException {
+        createListArea();
         Object[] namesEmployee = {"ID", "Район"};
         DefaultTableModel modelEmployee = new DefaultTableModel(namesEmployee, 0);
         for (int i = 1; i < areas.size(); ++i) {
@@ -1039,7 +1021,8 @@ public class JFrame extends javax.swing.JFrame {
         jTable1.setModel(modelEmployee);
     }
 
-    public void setjTablePatient(ArrayList<Patient> patients) {
+    public void setjTablePatient() throws SQLException {
+        createListPatient();
         Object[] namesEmployee = {"ID", "Фамилия", "Имя", "Отчество", "Дата рождения", "Район"};
         DefaultTableModel modelEmployee = new DefaultTableModel(namesEmployee, 0);
         for (int i = 1; i < patients.size(); ++i) {
@@ -1054,7 +1037,8 @@ public class JFrame extends javax.swing.JFrame {
         jTable1.setModel(modelEmployee);
     }
 
-    public void setjTableHosp(ArrayList<Hosp> hosps) {
+    public void setjTableHosp() throws SQLException {
+        createListHosp();
         Object[] namesEmployee = {"ID", "Название", "Район"};
         DefaultTableModel modelEmployee = new DefaultTableModel(namesEmployee, 0);
         for (int i = 1; i < hosps.size(); ++i) {
@@ -1066,7 +1050,8 @@ public class JFrame extends javax.swing.JFrame {
         jTable1.setModel(modelEmployee);
     }
 
-    public void setjTableServ(ArrayList<ServicePrice> servicePrices) {
+    public void setjTableServ() throws SQLException {
+        createListServ();
         Object[] namesEmployee = {"ID", "Название", "Стоимость"};
         DefaultTableModel modelEmployee = new DefaultTableModel(namesEmployee, 0);
         for (int i = 1; i < servicePrices.size(); ++i) {
@@ -1078,7 +1063,8 @@ public class JFrame extends javax.swing.JFrame {
         jTable1.setModel(modelEmployee);
     }
 
-    private void setjTableRec(ArrayList<Reception> receptions) {
+    private void setjTableRec() throws SQLException {
+        createListRec();
         Object[] namesEmployee = {"ID", "Дата", "Доктор", "Услуга", "Пациент", "Больница"};
         DefaultTableModel modelEmployee = new DefaultTableModel(namesEmployee, 0);
         for (int i = 1; i < receptions.size(); ++i) {
@@ -1111,140 +1097,40 @@ public class JFrame extends javax.swing.JFrame {
         txt_name.setVisible(false);
         lbl_price.setVisible(false);
         id_ar_serv.setVisible(false);
-        model = new DefaultComboBoxModel();
-        id_ar_serv.setModel(model);
+        id_ar_serv.setModel(new DefaultComboBoxModel());
         id_card.setVisible(false);
-        id_card.setModel(model);
+        id_card.setModel(new DefaultComboBoxModel());
         id_hosp.setVisible(false);
-        id_hosp.setModel(model);
+        id_hosp.setModel(new DefaultComboBoxModel());
         id_post_doc.setVisible(false);
-        id_post_doc.setModel(model);
+        id_post_doc.setModel(new DefaultComboBoxModel());
     }
 
-    private void createListPost() {
-        posts.removeAll(posts);
-        posts.add(null);
-        try {
-            ResultSet rs = dbManager.executeQuery("SELECT * FROM post");
-            while (rs.next()) {
-                Post post = new Post();
-                post.setId(rs.getLong("npost"));
-                post.setPost(rs.getString("post"));
-                posts.add(post);
-            }
-        } catch (SQLException ex) {
-            Logger.getLogger(JFrame.class.getName()).log(Level.SEVERE, null, ex);
-        }
+    private void createListPost() throws SQLException {
+        posts = postS.all();
     }
 
-    private void createListDoc() {
-        doctors.removeAll(doctors);
-        doctors.add(null);
-        try {
-            ResultSet rs = dbManager.executeQuery("SELECT * FROM doctor");
-            while (rs.next()) {
-                Doctor doctor = new Doctor();
-                doctor.setId(rs.getLong("ndoctor"));
-                doctor.setLastName(rs.getString("surname"));
-                doctor.setFirstName(rs.getString("name"));
-                doctor.setMiddleName(rs.getString("middlename"));
-                doctor.setId_post(rs.getLong("npost"));
-                doctor.setId_hosp(rs.getLong("nhosp"));
-                doctors.add(doctor);
-            }
-        } catch (SQLException ex) {
-            Logger.getLogger(JFrame.class.getName()).log(Level.SEVERE, null, ex);
-        }
+    private void createListDoc() throws SQLException {
+        doctors = docS.all();
     }
 
-    private void createListArea() {
-        areas.removeAll(areas);
-        areas.add(null);
-        try {
-            ResultSet rs = dbManager.executeQuery("SELECT * FROM area");
-            while (rs.next()) {
-                Area area = new Area();
-                area.setId(rs.getLong("narea"));
-                area.setDistrict(rs.getString("district"));
-                areas.add(area);
-            }
-        } catch (SQLException ex) {
-            Logger.getLogger(JFrame.class.getName()).log(Level.SEVERE, null, ex);
-        }
+    private void createListArea() throws SQLException {
+        areas = areaS.all();
     }
 
-    private void createListPatient() {
-        patients.removeAll(patients);
-        patients.add(null);
-        try {
-            ResultSet rs = dbManager.executeQuery("SELECT * FROM patient");
-            while (rs.next()) {
-                Patient patient = new Patient();
-                patient.setId(rs.getLong("ncard"));
-                patient.setLastName(rs.getString("surname"));
-                patient.setFirstName(rs.getString("name"));
-                patient.setMiddleName(rs.getString("middlename"));
-                patient.setDob(rs.getDate("dob"));
-                patient.setId_area(rs.getLong("narea"));
-                patients.add(patient);
-            }
-        } catch (SQLException ex) {
-            Logger.getLogger(JFrame.class.getName()).log(Level.SEVERE, null, ex);
-        }
+    private void createListPatient() throws SQLException {
+        patients = patS.all();
     }
 
-    private void createListHosp() {
-        hosps.removeAll(hosps);
-        hosps.add(null);
-        try {
-            ResultSet rs = dbManager.executeQuery("SELECT * FROM hosp");
-            while (rs.next()) {
-                Hosp hosp = new Hosp();
-                hosp.setId(rs.getLong("nhosp"));
-                hosp.setId_area(rs.getLong("narea"));
-                hosp.setName(rs.getString("name"));
-                hosps.add(hosp);
-            }
-        } catch (SQLException ex) {
-            Logger.getLogger(JFrame.class.getName()).log(Level.SEVERE, null, ex);
-        }
+    private void createListHosp() throws SQLException {
+        hosps = hoS.all();
     }
 
-    private void createListServ() {
-        servicePrices.removeAll(servicePrices);
-        servicePrices.add(null);
-        try {
-            ResultSet rs = dbManager.executeQuery("SELECT * FROM serviceprice");
-            while (rs.next()) {
-                ServicePrice servicePrice = new ServicePrice();
-                servicePrice.setId(rs.getLong("nservice"));
-                servicePrice.setService(rs.getString("service"));
-                servicePrice.setPrice(rs.getDouble("serviceprice"));
-                servicePrices.add(servicePrice);
-            }
-        } catch (SQLException ex) {
-            Logger.getLogger(JFrame.class.getName()).log(Level.SEVERE, null, ex);
-        }
+    private void createListServ() throws SQLException {
+        servicePrices = serS.all();
     }
 
-    private void createListRec() {
-        receptions.removeAll(receptions);
-        receptions.add(null);
-        try {
-            ResultSet rs = dbManager.executeQuery("SELECT * FROM reception");
-            while (rs.next()) {
-                Reception reception = new Reception();
-                reception.setId(rs.getLong("nrec"));
-                reception.setDate(rs.getDate("data"));
-                reception.setId_card(rs.getLong("ncard"));
-                reception.setId_doc(rs.getLong("ndoctor"));
-                reception.setId_hosp(rs.getLong("nhosp"));
-                reception.setId_serv(rs.getLong("nservice"));
-                receptions.add(reception);
-            }
-        } catch (SQLException ex) {
-            Logger.getLogger(JFrame.class.getName()).log(Level.SEVERE, null, ex);
-        }
+    private void createListRec() throws SQLException {
+        receptions = recS.all();
     }
-
 }

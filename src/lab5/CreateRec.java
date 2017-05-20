@@ -18,61 +18,58 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JOptionPane;
+import service.AbService;
 
 public class CreateRec extends javax.swing.JFrame {
-
+    
     private ArrayList<Doctor> doctors = new ArrayList<>();
     private ArrayList<Hosp> hosps = new ArrayList<>();
     private ArrayList<Patient> patients = new ArrayList<>();
     private ArrayList<Reception> receptions = new ArrayList<>();
     private ArrayList<ServicePrice> servicePrices = new ArrayList<>();
+    private AbService service = null;
     private JFrame frame;
     private DbManager dbManager;
 
-    public DbManager getDbManager() {
-        return dbManager;
-    }
-
+//    public DbManager getDbManager() {
+//        return dbManager;
+//    }
     public void setDbManager(DbManager dbManager) {
         this.dbManager = dbManager;
     }
 
-    public ArrayList<Doctor> getDoctors() {
-        return doctors;
-    }
-
+//    public ArrayList<Doctor> getDoctors() {
+//        return doctors;
+//    }
     public void setDoctors(ArrayList<Doctor> doctors) {
         this.doctors = doctors;
     }
 
-    public ArrayList<Hosp> getHosps() {
-        return hosps;
-    }
-
+//    public ArrayList<Hosp> getHosps() {
+//        return hosps;
+//    }
     public void setHosps(ArrayList<Hosp> hosps) {
         this.hosps = hosps;
     }
 
-    public ArrayList<Patient> getPatients() {
-        return patients;
-    }
-
+//    public ArrayList<Patient> getPatients() {
+//        return patients;
+//    }
     public void setPatients(ArrayList<Patient> patients) {
         this.patients = patients;
     }
-
+    
     public ArrayList<Reception> getReceptions() {
         return receptions;
     }
-
+    
     public void setReceptions(ArrayList<Reception> receptions) {
         this.receptions = receptions;
     }
 
-    public ArrayList<ServicePrice> getServicePrices() {
-        return servicePrices;
-    }
-
+//    public ArrayList<ServicePrice> getServicePrices() {
+//        return servicePrices;
+//    }
     public void setServicePrices(ArrayList<ServicePrice> servicePrices) {
         this.servicePrices = servicePrices;
     }
@@ -82,7 +79,7 @@ public class CreateRec extends javax.swing.JFrame {
      */
     public CreateRec() {
         initComponents();
-
+        
     }
 
     /**
@@ -226,22 +223,23 @@ public class CreateRec extends javax.swing.JFrame {
         if ((!txt_date.getText().isEmpty()) && (cmb_doc.getSelectedIndex() != -1) && (cmb_serv.getSelectedIndex() != -1) && (cmb_card.getSelectedIndex() != -1)
                 && (cmb_hosp.getSelectedIndex() != -1)) {
             try {
-                String str = "INSERT INTO reception values(" + receptions.size() + ",'";
-                str += txt_date.getText() + "'," + cmb_doc.getSelectedIndex() + "," + cmb_serv.getSelectedIndex() + ","
-                        + cmb_card.getSelectedIndex() + "," + cmb_hosp.getSelectedIndex() + ");";
-                dbManager.executeUpdate(str);
+//                String str = "INSERT INTO reception values(" + receptions.size() + ",'";
+//                str += txt_date.getText() + "'," + cmb_doc.getSelectedIndex() + "," + cmb_serv.getSelectedIndex() + ","
+//                        + cmb_card.getSelectedIndex() + "," + cmb_hosp.getSelectedIndex() + ");";
+//                dbManager.executeUpdate(str);
                 SimpleDateFormat format = new SimpleDateFormat();
                 format.applyPattern("yyyy-MM-dd");
                 try {
                     java.util.Date docDate = format.parse(txt_date.getText());
-                    Reception reception = new Reception();
-                    reception.setId(receptions.size());
-                    reception.setDate(new java.sql.Date(docDate.getTime()));
-                    reception.setId_card(cmb_card.getSelectedIndex());
-                    reception.setId_doc(cmb_doc.getSelectedIndex());
-                    reception.setId_hosp(cmb_hosp.getSelectedIndex());
-                    reception.setId_serv(cmb_serv.getSelectedIndex());
-                    receptions.add(reception);
+                    Reception reception = new Reception(receptions.size(), new java.sql.Date(docDate.getTime()), cmb_doc.getSelectedIndex(), cmb_serv.getSelectedIndex(), cmb_card.getSelectedIndex(), cmb_hosp.getSelectedIndex());
+//                    reception.setId(receptions.size());
+//                    reception.setDate(new java.sql.Date(docDate.getTime()));
+//                    reception.setId_card(cmb_card.getSelectedIndex());
+//                    reception.setId_doc(cmb_doc.getSelectedIndex());
+//                    reception.setId_hosp(cmb_hosp.getSelectedIndex());
+//                    reception.setId_serv(cmb_serv.getSelectedIndex());
+                    service.add(reception);
+                    //receptions.add(reception);
                     setVisible(false);
                 } catch (ParseException ex) {
                     Logger.getLogger(CreateRec.class.getName()).log(Level.SEVERE, null, ex);

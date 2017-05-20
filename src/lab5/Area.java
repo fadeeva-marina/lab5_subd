@@ -20,7 +20,6 @@ public class Area {
         this.id = id;
         this.district = district;
     }
-
     public long getId() {
         return id;
     }
